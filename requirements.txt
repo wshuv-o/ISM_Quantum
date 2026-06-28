@@ -1,0 +1,28 @@
+# ISM_Quantum — code-based PQC secure aggregation in FL
+# Validated versions (Windows, Python 3.12). See SETUP.md for the liboqs build step.
+
+# --- Federated learning ---
+flwr==1.32.0
+
+# --- Post-quantum crypto ---
+# liboqs-python needs a native liboqs shared library. On Linux (Colab/Kaggle) it
+# auto-builds with the preinstalled gcc. On this Windows machine it was built from
+# source with clang/ninja into ~/_oqs and HQC explicitly enabled — see SETUP.md.
+liboqs-python==0.15.0
+cryptography==46.0.7
+
+# --- ML / training (already present in the shared testenv) ---
+torch==2.5.0
+torchaudio==2.5.0
+torchvision==0.20.0   # NOT yet installed; for CIFAR-10. Install from the cu124 index:
+                      #   pip install torchvision==0.20.0 --index-url https://download.pytorch.org/whl/cu124
+numpy==2.2.4
+pandas==2.2.3
+scikit-learn==1.6.1
+matplotlib==3.10.0
+pyyaml
+tqdm
+
+# --- Build helpers for liboqs on Windows (no MSVC) ---
+cmake
+ninja

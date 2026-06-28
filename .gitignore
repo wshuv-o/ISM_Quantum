@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.egg-info/
+
+# liboqs source is NOT vendored — it's cloned/built per SETUP.md
+liboqs/
+*.dll
+*.so
+
+# Data & large artifacts
+data/
+!src/data/
+*.tar.gz
+*.zip
+
+# Results: keep csv/plots, ignore bulky logs/checkpoints
+results/**/*.log
+results/**/*.pt
+results/**/checkpoints/
+
+# Env
+.venv/
+.env
+
+# LaTeX build artifacts (keep .tex/.pdf/.bib/.md)
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Private: writing-system reference pack and source PDFs (do NOT publish)
+jahin_publication_system/
