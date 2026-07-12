@@ -34,7 +34,7 @@ rely on key establishment that a quantum computer would break, exposing recorded
 ``harvest-now, decrypt-later.'' Post-quantum FL secures this layer almost exclusively with
 \emph{lattice} cryptography, concentrating an entire ecosystem on one hardness assumption that a
 single cryptanalytic advance would defeat. We propose CB-SAFE, a KEM-agnostic secure-aggregation
-framework whose post-quantum confidentiality is established by the NIST-standardized code-based KEM
+framework whose post-quantum confidentiality is established by the NIST-selected code-based KEM
 HQC rather than a lattice KEM, providing the same NIST security levels under an independent
 (syndrome-decoding) assumption. CB-SAFE exposes the KEM as a pluggable module (Definition~1), runs
 code-based HQC or lattice Kyber/ML-KEM under one masking protocol, and applies cross-round key
@@ -80,7 +80,7 @@ contributions are:
 any IND-CCA2 KEM (Definition~1), making the post-quantum primitive a single replaceable module.
 \item \textbf{The first code-based instantiation, scope-qualified:} to our knowledge, CB-SAFE is
 the first FL secure-aggregation framework whose post-quantum confidentiality is established by the
-NIST-standardized code-based KEM (HQC) rather than a lattice KEM, at the same NIST security levels.
+NIST-selected code-based KEM (HQC) rather than a lattice KEM, at the same NIST security levels.
 \item \textbf{Ciphertext-handling for practicality:} cross-round key amortization, ciphertext
 batching, and compression that keep the code-based payloads practical inside the FL loop.
 \item \textbf{A planned reproducible implementation} (liboqs, Flower, PyTorch), prototyped to
@@ -101,7 +101,7 @@ Three commitments are common to the work above and motivate CB-SAFE's departure.
 CB-SAFE establishes it from an independent code-based assumption selected by NIST for exactly this
 diversity \cite{nistir8545}. (ii)~The post-quantum primitive is hard-wired into each protocol;
 CB-SAFE exposes it behind a KEM-agnostic interface (Definition~1) so the code-based and lattice
-variants differ only in one module. (iii)~No prior framework brings a standardized code-based KEM
+variants differ only in one module. (iii)~No prior framework brings a standard-track code-based KEM
 into FL secure aggregation. To our knowledge, none satisfies any of these three.
 
 \section{Proposed Framework: CB-SAFE}

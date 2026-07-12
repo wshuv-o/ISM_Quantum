@@ -6,6 +6,27 @@ This README is the project context for continuing the work in Claude Code. It ca
 finalized topic, the design decisions made during planning, the build plan, and the
 constraints. Read it first before writing code.
 
+> **STATUS (2026-07-11): implemented.** The full CB-SAFE framework is built and verified:
+> KEM-agnostic cluster-based secure aggregation (HQC / ML-KEM / Kyber, pluggable) with
+> Bonawitz-style double masking, Shamir dropout recovery, robust aggregation across cluster
+> sums (trimmed mean / median / Multi-Krum), three poisoning attacks, and an in-process FL
+> simulation on CIFAR-10 (Dirichlet non-IID, 30 clients). See `experiments/` for runnable
+> entry points (`smoke_test.py`, `run_overhead.py`, `run_utility.py`, `run_robustness.py`,
+> `run_sweep.py`, `analyze.py`, `plots.py`) and `results/` for measured CSVs + figures.
+> The full paper draft with measured numbers lives in `paper/cbsafe.tex`.
+>
+> Scope extension vs. the original plan below: the framework now also covers **Byzantine
+> robustness** via secure aggregation *within* clusters of size c and robust rules *across*
+> cluster sums, with the quantified privacy–robustness trade-off P(clean cluster) = (1-f)^c.
+> Closest prior art (must stay cited): arXiv:2601.01053 (lattice-based Byzantine PQ FL) and
+> arXiv:2602.22269 (CQSA, quantum-hardware clustered aggregation). Our claim stays narrow:
+> first *code-based* (HQC) PQ secure aggregation in FL. Note HQC was **selected** by NIST
+> (Mar 2025, IR 8545) — draft standard expected as FIPS 207; do not write "standardized."
+>
+> Run everything with the shared env python (see SETUP.md):
+> `D:\EEG-TransNet\testenv\python.exe experiments\<script>.py`
+> (env vars OQS_INSTALL_PATH and KMP_DUPLICATE_LIB_OK are set by `experiments/_bootstrap.py`).
+
 ---
 
 ## 1. One-line summary

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CB-SAFE: Research Presentation</title>
+<meta name="hz:slide-selector" content=".slide" />
+<meta name="hz:canvas-width" content="1920" />
+<meta name="hz:canvas-height" content="1080" />
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #e8e8e6; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 24px; }
+.slide {
+  position: relative; width: 1920px; height: 1080px; background: #fcfcfb;
+  overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; color: #0b0b0b;
+}
+.slide .band { position: absolute; left: 0; top: 0; width: 14px; height: 1080px; background: #2a78d6; }
+.kicker { position: absolute; left: 110px; top: 72px; font-size: 26px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase; color: #2a78d6; }
+.slide h1 { position: absolute; left: 110px; top: 118px; width: 1700px; font-size: 62px;
+  font-weight: 700; line-height: 1.15; color: #0b0b0b; }
+.content { position: absolute; left: 110px; top: 300px; width: 860px; }
+.content.wide { width: 1700px; }
+.content li { font-size: 31px; line-height: 1.45; color: #26251f; margin-bottom: 26px;
+  list-style: none; padding-left: 38px; position: relative; }
+.content li::before { content: ""; position: absolute; left: 0; top: 16px; width: 14px;
+  height: 14px; border-radius: 3px; background: #2a78d6; }
+.content li b { color: #0b0b0b; }
+.fig { position: absolute; right: 90px; top: 300px; width: 800px; height: 640px;
+  display: flex; align-items: center; justify-content: center; }
+.fig img { max-width: 800px; max-height: 640px; }
+.figcap { position: absolute; right: 90px; top: 950px; width: 800px; font-size: 22px;
+  color: #52514e; text-align: center; }
+.foot { position: absolute; left: 110px; bottom: 44px; font-size: 22px; color: #898781; }
+.pageno { position: absolute; right: 60px; bottom: 44px; font-size: 22px; color: #898781; }
+.eq { font-family: "Cambria Math", Cambria, serif; font-size: 34px; background: #f2f5fa;
+  border-left: 6px solid #2a78d6; padding: 26px 34px; margin: 10px 0 26px 0; color: #0b0b0b; }
+/* title slide */
+.title-slide .kicker { top: 330px; }
+.title-slide h1 { top: 390px; font-size: 84px; width: 1640px; }
+.title-slide .authors { position: absolute; left: 110px; top: 700px; font-size: 34px; color: #26251f; line-height: 1.6; }
+.title-slide .inst { position: absolute; left: 110px; top: 800px; font-size: 28px; color: #52514e; }
+</style>
+</head>
+<body>
+
+<!-- 1: TITLE -->
+<div class="slide title-slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Research Presentation · Post-Quantum Cryptography × Federated Learning</div>
+  <h1>CB-SAFE: Code-Based Post-Quantum Secure Aggregation for Byzantine-Robust Federated Learning</h1>
+  <div class="authors">Md Wahiduzzaman Suva (26-94088-2) &nbsp;·&nbsp; Esm-e Moula Chowdhury Abha (26-94089-2)</div>
+  <div class="inst">Department of Computer Science, American International University&ndash;Bangladesh</div>
+  <div class="pageno">1 / 12</div>
+</div>
+
+<!-- 2: PROBLEM -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">The Problem</div>
+  <h1>Three threats meet in one protocol</h1>
+  <ul class="content wide">
+    <li><b>Updates leak.</b> FL never shares raw data, but gradient-inversion attacks reconstruct training samples from individual model updates.</li>
+    <li><b>Secure aggregation</b> fixes this: pairwise masks cancel on summation, so the server learns only the sum of updates.</li>
+    <li><b>A quantum computer breaks the key exchange</b> underneath (Shor), and "harvest now, decrypt later" makes recorded traffic vulnerable today.</li>
+    <li><b>Post-quantum FL exists, but it is lattice-only:</b> lattice secret sharing, lattice key-homomorphic PRFs, Dilithium signature aggregation.</li>
+    <li><b>One assumption to break them all:</b> a single cryptanalytic advance against lattices defeats every such deployment at once.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">2 / 12</div>
+</div>
+
+<!-- 3: IDEA -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">The Idea</div>
+  <h1>Cryptographic diversity, brought into FL</h1>
+  <ul class="content wide">
+    <li><b>March 2025:</b> NIST selects HQC, a code-based KEM whose security rests on syndrome decoding (not lattices), as the diversification backup to ML-KEM.</li>
+    <li><b>CB-SAFE:</b> to our knowledge, the first FL secure-aggregation framework whose post-quantum confidentiality is code-based.</li>
+    <li><b>The KEM is one pluggable module:</b> HQC, ML-KEM, or Kyber run under the identical masking protocol.</li>
+    <li><b>Plus a second axis:</b> we reconcile secure aggregation with Byzantine robustness and quantify the exact price of doing both.</li>
+    <li><b>Everything is measured, not modeled:</b> real liboqs crypto on the wire path; every byte and millisecond from running code.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">3 / 12</div>
+</div>
+
+<!-- 4: PROTOCOL -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">The Protocol</div>
+  <h1>KEM-agnostic cluster masking</h1>
+  <ul class="content wide">
+    <li><b>One-time setup:</b> every client publishes a KEM public key; pairwise secrets are established by encapsulation, once.</li>
+    <li><b>Every round r:</b> mask seeds come from HKDF(ss<sub>ij</sub>, r), so no KEM material ever crosses the wire again.</li>
+  </ul>
+  <div class="eq" style="position:absolute; left:148px; top:520px; width:1620px;">
+    y<sub>i</sub> = q(x<sub>i</sub>) + G(b<sub>i</sub><sup>r</sup>) + &Sigma;<sub>j&gt;i</sub> G(H(ss<sub>ij</sub>, r)) &minus; &Sigma;<sub>j&lt;i</sub> G(H(ss<sub>ij</sub>, r)) &nbsp; (mod 2<sup>64</sup>)
+  </div>
+  <ul class="content wide" style="top:680px;">
+    <li><b>Clusters of c clients:</b> masks cancel within a cluster, so the server sees only cluster sums, never an individual update.</li>
+    <li><b>Dropouts:</b> Shamir t-of-c recovery of self-masks; a cluster below threshold is excluded gracefully, never stalls the round.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">4 / 12</div>
+</div>
+
+<!-- 5: THEOREM -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Privacy Guarantee</div>
+  <h1>Theorem 1: nothing beyond the cluster sum</h1>
+  <ul class="content wide">
+    <li><b>Simulation-based proof:</b> the honest-but-curious server, colluding with up to t&minus;1 members of a cluster, sees a view computable from the cluster sum alone.</li>
+    <li><b>Hybrid argument:</b> IND-CCA2 KEM &rarr; uniform pairwise secrets &rarr; PRG masks &rarr; submissions uniform subject to the revealed sum.</li>
+    <li><b>Anonymity set</b> = the cluster's alive member count; both dropout-recovery paths are simulatable.</li>
+    <li><b>Defense adds zero leakage:</b> CB-SAFE+ flags are post-processing of already-revealed sums plus server-local data.</li>
+    <li><b>Scope stated honestly:</b> honest-but-curious server; where signatures are needed we compose ML-DSA, so only the KEM layer is code-based.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">5 / 12</div>
+</div>
+
+<!-- 6: OVERHEAD -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Result 1 · Cost of Diversity</div>
+  <h1>The code-based premium is a one-time constant</h1>
+  <ul class="content">
+    <li><b>Per-round traffic is identical for all six KEMs:</b> 2,277 KiB per client, dominated by the masked update itself.</li>
+    <li><b>Setup:</b> HQC-128 costs 15.2 KiB vs ML-KEM-512's 3.8 KiB per client (4.0&times;).</li>
+    <li><b>Under 0.03%</b> of total traffic across 40 training rounds.</li>
+    <li><b>Compute:</b> 2.0 s one-time for 30 clients vs 0.02 s; ~26 ms masking per round.</li>
+  </ul>
+  <div class="fig"><img src="../results/figs/fig_amortization.png" width="800" height="533" alt="Setup traffic vs one round" /></div>
+  <div class="figcap">Even HQC-256's setup is ~2% of a single round's traffic (log scale).</div>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">6 / 12</div>
+</div>
+
+<!-- 7: UTILITY -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Result 2 · Utility</div>
+  <h1>Privacy provably costs no accuracy</h1>
+  <ul class="content">
+    <li><b>59.0% on non-IID CIFAR-10</b> (Dirichlet &alpha;=0.5, 30 clients, 40 rounds).</li>
+    <li><b>Secure sums match plain FedAvg in every round</b> under both HQC and ML-KEM: max error 2.28&times;10<sup>&minus;5</sup>, exactly the fixed-point bound.</li>
+    <li><b>Dropout recovery demonstrated live:</b> cluster exclusion (round 10) and full Shamir + seed-reveal recovery (round 20).</li>
+    <li><b>Crypto is invisible next to training:</b> ~30 ms masking vs ~21 s of local training per round.</li>
+  </ul>
+  <div class="fig"><img src="../results/figs/fig_utility.png" width="800" height="450" alt="Accuracy vs rounds" /></div>
+  <div class="figcap">One curve serves all three configurations: the aggregates are numerically equal.</div>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">7 / 12</div>
+</div>
+
+<!-- 8: TENSION -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">The Tension</div>
+  <h1>Hide vs inspect: a dial with an exchange rate</h1>
+  <ul class="content">
+    <li><b>Robust rules need to inspect updates; secure aggregation hides them.</b></li>
+    <li><b>CB-SAFE's resolution is structural:</b> privacy below the cluster boundary, robustness above it, over k cluster means.</li>
+    <li><b>The price:</b> a cluster sum is clean only with probability (1&minus;f)<sup>c</sup>.</li>
+    <li><b>Theory meets data:</b> observed clean fractions 0.70 / 0.50 / 0.40 vs predicted 0.73 / 0.51 / 0.34.</li>
+  </ul>
+  <div class="fig"><img src="../results/figs/fig_tradeoff.png" width="800" height="533" alt="Tradeoff curves" /></div>
+  <div class="figcap">Bigger anonymity sets leave fewer clean cluster sums for any robust rule.</div>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">8 / 12</div>
+</div>
+
+<!-- 9: LAUNDERING -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Result 3 · The Laundering Effect</div>
+  <h1>Cluster averaging disguises what it contaminates</h1>
+  <ul class="content">
+    <li><b>One &gamma;=5 sign-flipper in a cluster of 3:</b> the cluster mean has exactly honest magnitude with inverted sign (&gamma;* = 2c/m &minus; 1).</li>
+    <li><b>Poisoned sums are not outliers</b> &mdash; coordinate-wise rules see a &plusmn;h cloud that averages to zero.</li>
+    <li><b>Trimmed mean and median: pinned at 10.0%</b> for f &ge; 20%. Multi-Krum (vector selection) survives: 53 / 43 / 17%.</li>
+    <li><b>The privacy mechanism structurally weakens</b> exactly the defenses practitioners reach for.</li>
+  </ul>
+  <div class="fig"><img src="../results/figs/fig_signflip_acc.png" width="800" height="533" alt="Signflip accuracy" /></div>
+  <div class="figcap">Collapse occurs exactly at the contamination boundary the (1&minus;f)<sup>c</sup> law predicts.</div>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">9 / 12</div>
+</div>
+
+<!-- 10: DEFENSE -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Result 4 · CB-SAFE+</div>
+  <h1>Identifying attackers the server never sees</h1>
+  <ul class="content wide">
+    <li><b>Re-randomized clusters every round</b> + a server loss probe (200-sample root set): flag any cluster whose sum raises root loss.</li>
+    <li><b>Suspicion accumulates:</b> an attacker sits in a flagged cluster nearly every round; an honest client only when randomly co-clustered (probability 1&minus;(1&minus;f)<sup>c&minus;1</sup>).</li>
+    <li><b>Temporal group testing:</b> the pools are privacy-preserving cluster sums; the tests repeat across training rounds; exclusion after a 5-round warmup.</li>
+    <li><b>Identification: 3/3 attackers at f=10%, 8/9 at f=30% &mdash; zero honest false positives in every configuration.</b></li>
+    <li><b>42.8% accuracy at f=30%</b> where every static rule reads 10&ndash;17% &mdash; the privacy cost refunded in rounds, not anonymity.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">10 / 12</div>
+</div>
+
+<!-- 11: DIAL + LIMITS -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Result 5 · The Dial, Measured &mdash; and Honest Limits</div>
+  <h1>What privacy costs, and where defenses end</h1>
+  <ul class="content">
+    <li><b>c=1 (no privacy):</b> median degrades gently, 50&rarr;39%. <b>c=3</b> breaks past f=10%; <b>c=5</b> already at f=10%.</li>
+    <li><b>At f=5%, privacy is free:</b> private configs match the no-privacy baseline.</li>
+    <li><b>Honest limit:</b> backdoor ASR stays 93&ndash;97% for every rule including ours &mdash; stealthy targeted attacks evade all sum-level probes.</li>
+    <li><b>Multi-Krum is stronger at f=20%</b> (44% vs 37.6%): the defense's edge grows with attack severity; the two are complementary.</li>
+  </ul>
+  <div class="fig"><img src="../results/figs/fig_cdial.png" width="800" height="533" alt="Measured privacy dial" /></div>
+  <div class="figcap">The breakdown frontier shifts left with cluster size, exactly as (1&minus;f)<sup>c</sup> predicts.</div>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB</div><div class="pageno">11 / 12</div>
+</div>
+
+<!-- 12: CONCLUSION -->
+<div class="slide" data-canvas-width="1920" data-canvas-height="1080">
+  <div class="band"></div>
+  <div class="kicker">Conclusion</div>
+  <h1>Takeaways &amp; what's next</h1>
+  <ul class="content wide">
+    <li><b>Cryptographic diversity in FL is practically free:</b> one pluggable KEM module, a setup-only premium under 0.03% of traffic.</li>
+    <li><b>Secure aggregation launders poisoning:</b> defending requires signals that survive aggregation (direction, loss), accumulated over time.</li>
+    <li><b>CB-SAFE+ identifies individual attackers from group observations</b> at zero additional privacy leakage.</li>
+    <li><b>Open problems:</b> targeted backdoors under secure aggregation, actively malicious servers, adaptive attackers gaming the probe margin.</li>
+    <li><b>In progress:</b> multi-seed replication with significance tests, FashionMNIST, 100-client scale &mdash; full implementation released open-source.</li>
+  </ul>
+  <div class="foot">CB-SAFE · Suva &amp; Chowdhury · AIUB · wshuvo360@gmail.com</div><div class="pageno">12 / 12</div>
+</div>
+
+</body>
+</html>

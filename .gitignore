@@ -34,3 +34,10 @@ results/**/checkpoints/
 
 # Private: writing-system reference pack and source PDFs (do NOT publish)
 jahin_publication_system/
+
+# derived Overleaf working copy (the zip is committed instead)
+paper/overleaf/
+
+# Office lock/temp files
+~$*
+**/~$*
