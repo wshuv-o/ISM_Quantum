@@ -14,6 +14,8 @@ data/
 !src/data/
 *.tar.gz
 *.zip
+# deliverable bundles under paper/ are tracked despite the *.zip rule
+!paper/*.zip
 
 # Results: keep csv/plots, ignore bulky logs/checkpoints
 results/**/*.log
