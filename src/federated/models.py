@@ -24,15 +24,48 @@ class SmallCNN(nn.Module):
         return self.classifier(self.features(x))
 
 
-# dataset name -> model constructor kwargs
+class TabularMLP(nn.Module):
+    """MLP for tabular intrusion-detection data (Edge-IIoTset)."""
+
+    def __init__(self, n_classes: int, in_dim: int, hidden: int = 128):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, hidden), nn.ReLU(), nn.Dropout(0.2),
+            nn.Linear(hidden, hidden), nn.ReLU(),
+            nn.Linear(hidden, n_classes),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+# dataset name -> {kind, n_classes, and constructor kwargs}. `in_dim` for tabular
+# datasets is discovered at load time and injected via set_tabular_dim().
 MODEL_SHAPES = {
-    "cifar10": {"in_channels": 3, "img_size": 32},
-    "fmnist": {"in_channels": 1, "img_size": 28},
+    "cifar10": {"kind": "cnn", "n_classes": 10, "in_channels": 3, "img_size": 32},
+    "fmnist": {"kind": "cnn", "n_classes": 10, "in_channels": 1, "img_size": 28},
+    "emnist": {"kind": "cnn", "n_classes": 47, "in_channels": 1, "img_size": 28},
+    "edgeiiot": {"kind": "mlp", "n_classes": 15, "in_dim": 63},
 }
 
 
-def make_model(dataset: str = "cifar10") -> "SmallCNN":
-    return SmallCNN(**MODEL_SHAPES[dataset])
+def set_tabular_dim(dataset: str, n_classes: int, in_dim: int) -> None:
+    """Edge-IIoTset's exact feature count / class count depend on preprocessing;
+    the loader calls this once so make_model builds a correctly-sized MLP."""
+    MODEL_SHAPES[dataset]["n_classes"] = n_classes
+    MODEL_SHAPES[dataset]["in_dim"] = in_dim
+
+
+def n_classes_of(dataset: str) -> int:
+    return MODEL_SHAPES[dataset]["n_classes"]
+
+
+def make_model(dataset: str = "cifar10") -> nn.Module:
+    shape = dict(MODEL_SHAPES[dataset])
+    kind = shape.pop("kind")
+    if kind == "mlp":
+        return TabularMLP(**shape)
+    return SmallCNN(**shape)
 
 
 def flat_params(model: nn.Module) -> np.ndarray:

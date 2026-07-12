@@ -53,7 +53,8 @@ class Config:
     attack: str = "none"         # none | labelflip | signflip | backdoor
     f_malicious: float = 0.0
     root_size: int = 200         # server root-dataset size (reputation defense anchor)
-    dataset: str = "cifar10"     # cifar10 | fmnist
+    dataset: str = "cifar10"     # cifar10 | fmnist | emnist | edgeiiot
+    n_classes: int = 10          # label space (set per dataset; used by label-flip)
 
 
 def set_seeds(seed: int) -> None:
@@ -79,7 +80,7 @@ def local_train(global_flat: np.ndarray, loader: DataLoader, cfg: Config,
     for _ in range(cfg.local_epochs):
         for x, y in loader:
             if malicious and cfg.attack == "labelflip":
-                y = attacks.flip_labels(y)
+                y = attacks.flip_labels(y, cfg.n_classes)
             if malicious and cfg.attack == "backdoor":
                 x, y = attacks.poison_batch(x, y)
             x, y = x.to(device), y.to(device)

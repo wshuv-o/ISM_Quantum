@@ -24,7 +24,14 @@ from pathlib import Path
 # On Linux (Colab/Kaggle) liboqs-python auto-builds and this is simply ignored.
 os.environ.setdefault("OQS_INSTALL_PATH", str(Path.home() / "_oqs"))
 
-import oqs  # noqa: E402  (import after setting OQS_INSTALL_PATH)
+# liboqs is imported lazily so that importing this module (and hence the whole
+# aggregation/simulation stack) does NOT require a liboqs build. The robustness
+# experiments never instantiate a KEM; only the overhead/equivalence experiments
+# do, and they run where liboqs is installed. This keeps the pure-PyTorch Kaggle
+# runner dependency-free.
+def _oqs():
+    import oqs  # noqa: PLC0415
+    return oqs
 
 # Logical name -> liboqs mechanism string.
 KEMS: dict[str, str] = {
@@ -57,12 +64,12 @@ def mechanism(name: str) -> str:
 
 def is_enabled(name: str) -> bool:
     """True if this KEM is compiled into the loaded liboqs build."""
-    return mechanism(name) in oqs.get_enabled_kem_mechanisms()
+    return mechanism(name) in _oqs().get_enabled_kem_mechanisms()
 
 
 def details(name: str) -> dict:
     """Sizes + NIST level for a KEM, without generating any keys."""
-    with oqs.KeyEncapsulation(mechanism(name)) as kem:
+    with _oqs().KeyEncapsulation(mechanism(name)) as kem:
         d = kem.details
     return {
         "name": name,
@@ -89,7 +96,7 @@ class KEM:
     def __init__(self, name: str):
         self.name = name
         self.mechanism = mechanism(name)
-        self._kem = oqs.KeyEncapsulation(self.mechanism)
+        self._kem = _oqs().KeyEncapsulation(self.mechanism)
         self._public_key: bytes | None = None
 
     def keygen(self) -> bytes:
@@ -110,7 +117,7 @@ class KEM:
     @staticmethod
     def encapsulate(name: str, public_key: bytes) -> tuple[bytes, bytes]:
         """Encapsulate to someone else's public key. Returns (ciphertext, shared_secret)."""
-        with oqs.KeyEncapsulation(mechanism(name)) as enc:
+        with _oqs().KeyEncapsulation(mechanism(name)) as enc:
             return enc.encap_secret(public_key)
 
     def free(self) -> None:
@@ -124,4 +131,4 @@ class KEM:
 
 
 def liboqs_version() -> str:
-    return oqs.oqs_version()
+    return _oqs().oqs_version()
