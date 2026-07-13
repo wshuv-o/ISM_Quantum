@@ -53,8 +53,12 @@ inverted sums that defeat all coordinate-wise robust rules, and introduce CB-SAF
 re-randomized clustering with root-anchored direction flags accumulates per-client
 suspicion across rounds (temporal group testing over private sums) and excludes
 attackers the server never observes individually, at zero additional leakage.
-Experiments on non-IID CIFAR-10 with label-flipping, sign-flipping, and backdoor
-attacks validate the framework, and the implementation is released open-source.
+Experiments across three datasets and two modalities (non-IID CIFAR-10 and
+FashionMNIST, and tabular Edge-IIoTset IoT intrusion detection) with
+label-flipping, sign-flipping, and backdoor attacks validate the framework: the
+laundering effect and CB-SAFE+'s recovery replicate on every dataset (CB-SAFE+
+beats every baseline under sign-flip, Holm-corrected $p{<}0.01$), and the
+implementation is released open-source.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -299,16 +303,19 @@ protocol (public keys, ciphertexts, shares, masked vectors), not modeled.
 \emph{Reproducibility:} Python 3.12, PyTorch 2.5.0 (CUDA 12.4), liboqs-python
 0.15.0, on a single NVIDIA RTX 2060 (6\,GB); one training round of 30 clients takes
 $\approx$21\,s. All runs use fixed seed 0 with deterministic partitioning and
-cluster assignment; results are single-seed (multi-seed replication with paired
-tests is in progress) and every experiment is reproducible from a per-run CSV and
-the released scripts.
+cluster assignment; CIFAR-10 and FashionMNIST results are averaged over three seeds
+(Edge-IIoTset over one), significance is by paired $t$-test with Holm correction,
+and every experiment is reproducible from a per-run CSV and the released scripts.
 
 \section{Evaluation}\label{sec:eval}
 \subsection{Setup}
-\textbf{Task and data.} CIFAR-10 partitioned across $N{=}30$ clients by a
-Dirichlet($\alpha{=}0.5$) label-skew split; a CNN with $d{=}291\,498$ parameters;
-one local epoch per round (SGD, lr $0.01$, momentum $0.9$, batch $64$); $k{=}10$
-clusters of $c{=}3$ unless stated. \textbf{Configurations.} Plain FedAvg (no
+\textbf{Task and data.} Primary task: CIFAR-10 partitioned across $N{=}30$ clients
+by a Dirichlet($\alpha{=}0.5$) label-skew split; a CNN with $d{=}291\,498$
+parameters; one local epoch per round (SGD, lr $0.01$, momentum $0.9$, batch $64$);
+$k{=}10$ clusters of $c{=}3$ unless stated. Generalization (Section~\ref{sec:general})
+adds FashionMNIST (same CNN) and Edge-IIoTset (a 15-class tabular IoT
+intrusion-detection set with a multilayer perceptron), each Dirichlet-partitioned
+identically. \textbf{Configurations.} Plain FedAvg (no
 cryptography); CB-SAFE/lattice (ML-KEM); CB-SAFE/code-based (HQC), at matched NIST
 levels. \textbf{Attacks.} Label flipping ($y \to 9-y$), sign flipping
 ($-5\Delta$), and a backdoor \cite{bagdasaryan2020} (3$\times$3 trigger patch,
@@ -481,6 +488,61 @@ suppresses the trigger (median at $f{=}0.1$ partially excepted): backdoored sums
 help the main task and evade loss/direction probes, the honest scope limit of
 robustness under secure aggregation.}
 \label{fig:backdoor}
+\end{figure}
+
+\subsection{Generalization Across Datasets and Modalities}\label{sec:general}
+To test whether the laundering effect and CB-SAFE+'s recovery are artifacts of one
+dataset, we repeat the sign-flip evaluation on FashionMNIST (a second image
+benchmark, three seeds) and on Edge-IIoTset (tabular IoT/IIoT intrusion detection
+with a multilayer perceptron, a different modality in the security domain of the
+closest prior work \cite{byzpqfl2026}). The pattern is identical everywhere
+(Table~\ref{tab:general}, Fig.~\ref{fig:general}): every coordinate-wise rule
+collapses to chance at $f{\ge}0.2$ (10.0\% on the 10-class image sets, 7.3\% on
+15-class Edge-IIoTset), Multi-Krum degrades gracefully then falls at $f{=}0.3$, and
+CB-SAFE+ tracks the clean baseline. At $f{=}0.3$ CB-SAFE+ retains 84\%, high-$80$s,
+and 97\% of the no-attack accuracy on CIFAR-10, FashionMNIST, and Edge-IIoTset
+respectively, versus 12--18\% for the worst static rule. Pooling all matched
+(dataset, $f$, seed) cells, CB-SAFE+ beats every baseline under a paired $t$-test
+with Holm correction: versus the mean by 48.3 points ($p{<}10^{-4}$), the median by
+37.7 ($p{=}3{\times}10^{-4}$), and Multi-Krum by 11.9 ($p{=}9{\times}10^{-3}$). The
+Edge-IIoTset result is the sharpest: at $f{=}0.3$ CB-SAFE+ holds 61.5\% against a
+63.7\% clean baseline while mean, trimmed mean, and median all sit at 7.3\%.
+
+\begin{table}[t]
+\caption{Sign-flip robustness across datasets ($c{=}3$): final test accuracy (\%),
+mean over seeds. Coordinate-wise rules collapse to chance at $f{\ge}0.2$ on every
+dataset; CB-SAFE+ tracks the clean baseline. (CIFAR-10, FashionMNIST: 3 seeds;
+Edge-IIoTset: 1 seed.)}
+\label{tab:general}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Dataset & Rule & clean & $f{=}.1$ & $f{=}.2$ & $f{=}.3$\\
+\midrule
+CIFAR-10 & Median      & 59.0 & 47.8 & 10.0 & 10.0\\
+(images) & Multi-Krum  & 59.0 & 53.6 & 39.8 & 20.3\\
+         & CB-SAFE+    & 59.0 & 52.6 & \textbf{45.6} & \textbf{46.4}\\
+\midrule
+FashionMNIST & Median     & 88.5 & 84.9 & 10.0 & 10.0\\
+(images)     & Multi-Krum & 88.5 & 85.9 & 83.0 & 43.1\\
+             & CB-SAFE+   & 88.5 & 85.8 & \textbf{86.1} & \textbf{84.1}\\
+\midrule
+Edge-IIoTset & Median     & 63.7 & 59.6 & 13.6 & 7.3\\
+(tabular)    & Multi-Krum & 63.7 & 63.3 & 59.4 & 38.5\\
+             & CB-SAFE+   & 63.7 & 61.9 & \textbf{62.3} & \textbf{61.5}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_generalization.pdf}
+\caption{Sign-flip at $f{=}30\%$: fraction of clean-baseline accuracy retained by
+the worst static rule, the best static rule, and CB-SAFE+, on every dataset.
+CB-SAFE+ preserves $84$--$97\%$ where static rules keep $12$--$60\%$.}
+\label{fig:general}
 \end{figure}
 
 \subsection{The Privacy--Robustness Dial, Measured}

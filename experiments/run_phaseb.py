@@ -73,11 +73,23 @@ def csv_path(j):
 def main() -> None:
     here = os.path.dirname(os.path.abspath(__file__))
     all_jobs = jobs()
+    # a second worker launched with "reverse" eats the queue back-to-front so two
+    # processes meet in the middle; both skip existing CSVs (see os.path.exists)
+    tag = "fwd"
+    if "reverse" in sys.argv:
+        all_jobs = list(reversed(all_jobs))
+        tag = "rev"
+    # optional dataset filter, e.g. "only=fmnist", so a CPU-only third worker can
+    # take a cleanly disjoint slice from the two GPU workers
+    only = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("only=")), None)
+    if only:
+        all_jobs = [j for j in all_jobs if j["dataset"] == only]
+        tag = f"{only}"
     for i, j in enumerate(all_jobs, 1):
         if os.path.exists(csv_path(j)):
-            print(f"[{i}/{len(all_jobs)}] skip: {os.path.basename(csv_path(j))}", flush=True)
+            print(f"[{tag} {i}/{len(all_jobs)}] skip: {os.path.basename(csv_path(j))}", flush=True)
             continue
-        print(f"[{i}/{len(all_jobs)}] run: {j}", flush=True)
+        print(f"[{tag} {i}/{len(all_jobs)}] run: {j}", flush=True)
         rc = subprocess.call([
             sys.executable, os.path.join(here, "run_robustness.py"),
             "--attack", j["attack"], "--f", str(j["f"]), "--aggregator", j["agg"],
